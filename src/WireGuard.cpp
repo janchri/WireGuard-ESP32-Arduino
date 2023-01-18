@@ -121,7 +121,7 @@ bool WireGuard::begin(const IPAddress& localIP, const IPAddress& Subnet, const I
 
 bool WireGuard::begin(const IPAddress& localIP, const char* privateKey, const char* remotePeerAddress, const char* remotePeerPublicKey, uint16_t remotePeerPort) {
 	// Maintain compatiblity with old begin 
-	auto subnet = IPAddress(255,255,255,255);
+	auto subnet = IPAddress(255,255,255,0);
 	auto gateway = IPAddress(0,0,0,0);
 	return WireGuard::begin(localIP, subnet, gateway, privateKey, remotePeerAddress, remotePeerPublicKey, remotePeerPort);
 }
