@@ -920,10 +920,14 @@ err_t wireguardif_init(struct netif *netif) {
 	uint8_t private_key[WIREGUARD_PRIVATE_KEY_LEN];
 	size_t private_key_len = sizeof(private_key);
 
-	void *pointer_to_underlying_netif;
     struct netif* underlying_netif;
-    tcpip_adapter_get_netif(TCPIP_ADAPTER_IF_STA, &pointer_to_underlying_netif);
-	underlying_netif = pointer_to_underlying_netif;
+	//void *pointer_to_underlying_netif;
+    //tcpip_adapter_get_netif(TCPIP_ADAPTER_IF_STA, &pointer_to_underlying_netif);
+	//underlying_netif = pointer_to_underlying_netif;
+	void* nif;
+	tcpip_adapter_get_netif(TCPIP_ADAPTER_IF_STA, &nif);
+	underlying_netif = (struct netif*)nif;
+	
 	log_i(TAG "underlying_netif = %p", underlying_netif);
 
 	LWIP_ASSERT("netif != NULL", (netif != NULL));
