@@ -29,7 +29,7 @@ static uint8_t wireguard_peer_index = WIREGUARDIF_INVALID_INDEX;
 
 #define TAG "[WireGuard] "
 
-bool WireGuard::begin(const IPAddress& localIP, const IPAddress& Subnet, const IPAddress& Gateway, const char* privateKey, const char* remotePeerAddress, const char* remotePeerPublicKey, uint16_t remotePeerPort) {
+bool WireGuard::begin(const IPAddress& localIP, const IPAddress& allowedIp, const IPAddress& allowedMask, const IPAddress& Subnet, const IPAddress& Gateway, const char* privateKey, const char* remotePeerAddress, const char* remotePeerPublicKey, uint16_t remotePeerPort) {
 	struct wireguardif_init_data wg;
 	struct wireguardif_peer peer;
 	ip_addr_t ipaddr = IPADDR4_INIT(static_cast<uint32_t>(localIP));
@@ -91,14 +91,11 @@ bool WireGuard::begin(const IPAddress& localIP, const IPAddress& Subnet, const I
 
 	peer.public_key = remotePeerPublicKey;
 	peer.preshared_key = NULL;
-	// Allow all IPs through tunnel
-    {
-        ip_addr_t allowed_ip = IPADDR4_INIT_BYTES(0, 0, 0, 0);
-        peer.allowed_ip = allowed_ip;
-        ip_addr_t allowed_mask = IPADDR4_INIT_BYTES(0, 0, 0, 0);
-        peer.allowed_mask = allowed_mask;
-    }
-	
+	// AllowedIPs through tunnel
+	ip_addr_t allowed_ip = IPADDR4_INIT(static_cast<uint32_t>(allowedIp));
+    peer.allowed_ip = allowed_ip;
+	ip_addr_t allowed_mask = IPADDR4_INIT(static_cast<uint32_t>(allowedMask));
+    peer.allowed_mask = allowed_mask;
 	peer.endport_port = remotePeerPort;
 
     // Initialize the platform
@@ -123,7 +120,9 @@ bool WireGuard::begin(const IPAddress& localIP, const char* privateKey, const ch
 	// Maintain compatiblity with old begin 
 	auto subnet = IPAddress(255,255,255,0);
 	auto gateway = IPAddress(0,0,0,0);
-	return WireGuard::begin(localIP, subnet, gateway, privateKey, remotePeerAddress, remotePeerPublicKey, remotePeerPort);
+	auto allowed_ip = IPAddress(0,0,0,0);
+	auto allowed_mask = IPAddress(0,0,0,0);
+	return WireGuard::begin(localIP, allowed_ip, allowed_mask, subnet, gateway, privateKey, remotePeerAddress, remotePeerPublicKey, remotePeerPort);
 }
 
 void WireGuard::end() {
